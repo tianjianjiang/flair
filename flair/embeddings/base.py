@@ -21,6 +21,7 @@ from transformers import (
     TransfoXLModel,
     XLNetModel,
 )
+from transformers.tokenization_utils_base import LARGE_INTEGER, TruncationStrategy
 
 import flair
 from flair.data import DT, Sentence, Token
@@ -168,13 +169,11 @@ class ScalarMix(torch.nn.Module):
 
 
 class TransformerEmbedding(Embeddings[Sentence]):
-    NO_MAX_SEQ_LENGTH_MODELS = (XLNetModel, TransfoXLModel)
-
     def __init__(
         self,
         model: str = "bert-base-uncased",
         fine_tune: bool = True,
-        layers: str = "all",
+        layers: str = "-1",
         layer_mean: bool = True,
         subtoken_pooling: str = "first",
         cls_pooling: str = "cls",
@@ -217,7 +216,7 @@ class TransformerEmbedding(Embeddings[Sentence]):
 
         self.truncate = True
 
-        if isinstance(self.model, self.NO_MAX_SEQ_LENGTH_MODELS):
+        if self.tokenizer.model_max_length > LARGE_INTEGER:
             allow_long_sentences = False
             self.truncate = False
 
