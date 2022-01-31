@@ -34,7 +34,6 @@ from flair.training_utils import (
     AnnealOnPlateau,
     WeightExtractor,
     add_file_handler,
-    identify_dynamic_embeddings,
     init_output_file,
     log_line,
     store_embeddings,
@@ -357,9 +356,6 @@ class ModelTrainer:
 
         micro_batch_size = mini_batch_chunk_size
 
-        # this field stores the names of all dynamic embeddings in the model (determined after first forward pass)
-        dynamic_embeddings = None
-
         # At any point you can hit Ctrl + C to break out of training early.
         try:
             if create_file_logs:
@@ -446,8 +442,8 @@ class ModelTrainer:
                 batch_loader = DataLoader(
                     train_data,
                     batch_size=mini_batch_size,
-                    shuffle=shuffle if epoch > 1 else False,  # never shuffle the first epoch
-                    num_workers=0 if num_workers is None else num_workers,
+                    shuffle=shuffle if epoch > 1 or isinstance(self.corpus, MultiCorpus) else False,  # never shuffle the first epoch
+                    num_workers=num_workers,
                     sampler=sampler,
                 )
 
@@ -511,12 +507,9 @@ class ModelTrainer:
 
                     seen_batches += 1
 
-                    # identify dynamic embeddings (always deleted) on first sentence
-                    if not dynamic_embeddings:
-                        dynamic_embeddings = identify_dynamic_embeddings(batch[0])
-
-                    # depending on memory mode, embeddings are moved to CPU, GPU or deleted
-                    store_embeddings(batch, embeddings_storage_mode, dynamic_embeddings)
+                    # depending on memory mode, embeddings are moved to CPU, GPU
+                    # or deleted
+                    store_embeddings(batch, embeddings_storage_mode)
 
                     batch_time += time.time() - start_time
                     if seen_batches % modulo == 0:
@@ -565,8 +558,9 @@ class ModelTrainer:
                     )
                     result_line += f"\t{train_eval_result.log_line}"
 
-                    # depending on memory mode, embeddings are moved to CPU, GPU or deleted
-                    store_embeddings(self.corpus.train, embeddings_storage_mode, dynamic_embeddings)
+                    # depending on memory mode, embeddings are moved to CPU, GPU
+                    # or deleted
+                    store_embeddings(self.corpus.train, embeddings_storage_mode)
 
                 if log_train_part:
                     train_part_eval_result = self.model.evaluate(
@@ -620,8 +614,9 @@ class ModelTrainer:
 
                     dev_score = dev_eval_result.main_score
 
-                    # depending on memory mode, embeddings are moved to CPU, GPU or deleted
-                    store_embeddings(self.corpus.dev, embeddings_storage_mode, dynamic_embeddings)
+                    # depending on memory mode, embeddings are moved to CPU, GPU
+                    # or deleted
+                    store_embeddings(self.corpus.dev, embeddings_storage_mode)
 
                     if use_tensorboard:
                         writer.add_scalar("dev_loss", dev_eval_result.loss, epoch)
@@ -656,8 +651,9 @@ class ModelTrainer:
                         f" {round(test_eval_result.main_score, 4)}"
                     )
 
-                    # depending on memory mode, embeddings are moved to CPU, GPU or deleted
-                    store_embeddings(self.corpus.test, embeddings_storage_mode, dynamic_embeddings)
+                    # depending on memory mode, embeddings are moved to CPU, GPU
+                    # or deleted
+                    store_embeddings(self.corpus.test, embeddings_storage_mode)
 
                     if use_tensorboard:
                         writer.add_scalar("test_loss", test_eval_result.loss, epoch)
