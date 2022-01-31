@@ -602,11 +602,14 @@ class TARSTagger(FewshotClassifier):
         """
         if "task" in kwargs.keys():
             task = kwargs.get("task")
-        elif set([x.multitask_annotations[0].task_id for x in sentences]):
-            task = set([x.multitask_annotations[0].task_id for x in sentences]).pop()
+            self.switch_to_task(task)
+        elif any([x.multitask_annotations for x in sentences]):
+            flat = set([item for sublist in [x.multitask_annotations for x in sentences] for item in sublist])
+            assert len(flat) == 1
+            self.switch_to_task(flat.pop())
         else:
-            raise ValueError
-        self.switch_to_task(task)
+            pass
+
 
         if label_name is None:
             label_name = self.get_current_label_type()
