@@ -66,7 +66,8 @@ class FewshotClassifier(flair.nn.Classifier[Sentence]):
                                       sentences: List[Sentence],
                                       context_offsets,
                                       original_lengths,
-                                      label: Optional = None):
+                                      label: Optional = None,
+                                      task: Optional = None):
         label_text_pairs = []
         extended_offsets = []
         extended_original_lengths = []
@@ -74,6 +75,10 @@ class FewshotClassifier(flair.nn.Classifier[Sentence]):
         if label:
             all_labels = [label]
         else:
+            if all([x.multitask_annotations for x in sentences]):
+                flat = set([x.multitask_annotations[0].task_id for x in sentences])
+                assert len(flat) == 1
+                self.switch_to_task(flat.pop())
             all_labels = [label.decode("utf-8") for label in self.get_current_label_dictionary().idx2item]
         for sentence, context_offset, original_length in zip(sentences, context_offsets, original_lengths):
             label_text_pairs_for_sentence = []
