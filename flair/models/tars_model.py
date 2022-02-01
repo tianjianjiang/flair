@@ -503,6 +503,7 @@ class TARSTagger(FewshotClassifier):
                             final_sentence.add_token(expanded_sentence[tars_offset + context_offset + token_idx],
                                                      force_adjuct_indices=True,)
 
+                    final_sentence.annotation_layers = expanded_sentence.annotation_layers
                     final_sentences.append(final_sentence)
             else:
                 final_sentences = expanded_sentences
