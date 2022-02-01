@@ -614,7 +614,7 @@ class TARSTagger(FewshotClassifier):
             task = kwargs.get("task")
             self.switch_to_task(task)
         elif any([x.multitask_annotations for x in sentences]):
-            flat = set([item for sublist in [x.multitask_annotations for x in sentences] for item in sublist])
+            flat = set([x.multitask_annotations[0].task_id for x in sentences])
             assert len(flat) == 1
             self.switch_to_task(flat.pop())
         else:
