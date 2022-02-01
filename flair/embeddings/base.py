@@ -740,6 +740,8 @@ class TransformerEmbedding(Embeddings[Sentence]):
 
         context_length = len(left_context)
         expanded_sentence.annotation_layers = sentence.annotation_layers
+        if bool(sentence.multitask_annotations):
+            expanded_sentence.multitask_annotations = sentence.multitask_annotations
         return expanded_sentence, context_length
 
     def _add_embeddings_internal(self, sentences: List[Sentence]):
