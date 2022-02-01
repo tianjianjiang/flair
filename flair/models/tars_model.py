@@ -504,6 +504,8 @@ class TARSTagger(FewshotClassifier):
                                                      force_adjuct_indices=True,)
 
                     final_sentences.append(final_sentence)
+            else:
+                final_sentences = expanded_sentences
         return final_sentences, tars_label_offsets
 
     def _get_tars_formatted_sentence(self, label, sentence):
