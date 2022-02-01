@@ -739,6 +739,7 @@ class TransformerEmbedding(Embeddings[Sentence]):
             expanded_sentence.add_token(token)
 
         context_length = len(left_context)
+        expanded_sentence.annotation_layers = sentence.annotation_layers
         return expanded_sentence, context_length
 
     def _add_embeddings_internal(self, sentences: List[Sentence]):
