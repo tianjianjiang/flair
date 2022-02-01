@@ -465,6 +465,7 @@ class TARSTagger(FewshotClassifier):
                     expanded_sentences.append(expanded_sentence)
                     context_offsets.append(context_offset)
             else:
+                context_offsets.append(0)
                 expanded_sentences.extend(data_points)
 
             # Transform input data into TARS format
