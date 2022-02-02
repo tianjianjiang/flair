@@ -449,7 +449,7 @@ class TARSTagger(FewshotClassifier):
         # move embeddings from context back to original sentence (if using context)
         final_sentences = []
 
-        for expanded_sentence, original_length, context_offset, tars_offset in zip(
+        for expanded_sentence, original_length, context_offset in zip(
                 expanded_sentences, [len(s) for s in data_points], context_offsets
         ):
             final_sentence = Sentence()
