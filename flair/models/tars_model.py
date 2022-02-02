@@ -104,12 +104,12 @@ class FewshotClassifier(flair.nn.Classifier[Sentence]):
 
             plausible_labels = []
             plausible_label_probabilities = []
-            for plausible_label in self.label_nearest_map[self._current_task][label]:
+            for plausible_label in self.label_nearest_map[label]:
                 if plausible_label in already_sampled_negative_labels or plausible_label in labels:
                     continue
                 else:
                     plausible_labels.append(plausible_label)
-                    plausible_label_probabilities.append(self.label_nearest_map[self._current_task][label][plausible_label])
+                    plausible_label_probabilities.append(self.label_nearest_map[label][plausible_label])
 
             # make sure the probabilities always sum up to 1
             plausible_label_probabilities = np.array(plausible_label_probabilities, dtype="float64")
