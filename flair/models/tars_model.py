@@ -149,33 +149,36 @@ class FewshotClassifier(flair.nn.Classifier[Sentence]):
         Compute the similarity between all labels for better sampling of negatives
         """
         # get and embed all labels by making a Sentence object that contains only the label text
-        all_labels = [label.decode("utf-8") for label in self.get_current_label_dictionary().idx2item]
-        label_sentences = [Sentence(label) for label in all_labels]
+        for task in self._task_specific_attributes.keys():
+            self.switch_to_task(task)
+            all_labels = [label.decode("utf-8") for label in self.get_current_label_dictionary().idx2item]
+            label_sentences = [Sentence(label) for label in all_labels]
 
-        self.tars_embeddings.eval()  # TODO: check if this is necessary
-        self.tars_embeddings.embed(label_sentences)
-        self.tars_embeddings.train()
+            self.tars_embeddings.eval()  # TODO: check if this is necessary
+            self.tars_embeddings.embed(label_sentences)
+            self.tars_embeddings.train()
 
-        # get each label embedding and scale between 0 and 1
-        if isinstance(self.tars_embeddings, TokenEmbeddings):
-            encodings_np = [sentence[0].get_embedding().cpu().detach().numpy() for sentence in label_sentences]
-        else:
-            encodings_np = [sentence.get_embedding().cpu().detach().numpy() for sentence in label_sentences]
+            # get each label embedding and scale between 0 and 1
+            if isinstance(self.tars_embeddings, TokenEmbeddings):
+                encodings_np = [sentence[0].get_embedding().cpu().detach().numpy() for sentence in label_sentences]
+            else:
+                encodings_np = [sentence.get_embedding().cpu().detach().numpy() for sentence in label_sentences]
 
-        normalized_encoding = minmax_scale(encodings_np)
+            normalized_encoding = minmax_scale(encodings_np)
 
-        # compute similarity matrix
-        similarity_matrix = cosine_similarity(normalized_encoding)
+            # compute similarity matrix
+            similarity_matrix = cosine_similarity(normalized_encoding)
 
-        # the higher the similarity, the greater the chance that a label is
-        # sampled as negative example
-        negative_label_probabilities = {}
-        for row_index, label in enumerate(all_labels):
-            negative_label_probabilities[label] = {}
-            for column_index, other_label in enumerate(all_labels):
-                if label != other_label:
-                    negative_label_probabilities[label][other_label] = similarity_matrix[row_index][column_index]
-        self.label_nearest_map = negative_label_probabilities
+            # the higher the similarity, the greater the chance that a label is
+            # sampled as negative example
+            negative_label_probabilities = {}
+            for row_index, label in enumerate(all_labels):
+                negative_label_probabilities[label] = {}
+                for column_index, other_label in enumerate(all_labels):
+                    if label != other_label:
+                        negative_label_probabilities[label][other_label] = similarity_matrix[row_index][column_index]
+            self.label_nearest_map = negative_label_probabilities
+            self._task_specific_attributes[task] = {**self._task_specific_attributes[task], **{"label_nearest_map": negative_label_probabilities}}
 
     def get_current_label_dictionary(self):
         label_dictionary = self._task_specific_attributes[self._current_task]["label_dictionary"]
