@@ -64,6 +64,8 @@ class FewshotClassifier(flair.nn.Classifier[Sentence]):
         else:
             all_labels = [label.decode("utf-8") for label in self.get_current_label_dictionary().idx2item]
 
+        examples_per_sentence = []
+
         for sentence in sentences:
             label_text_pairs_for_sentence = []
             if self.training and self.get_current_num_negative_samples() is not None:
@@ -84,8 +86,9 @@ class FewshotClassifier(flair.nn.Classifier[Sentence]):
                     label_text_pairs_for_sentence.append(self._get_tars_formatted_sentence(label, sentence))
 
             label_text_pairs.extend(label_text_pairs_for_sentence)
+            examples_per_sentence.append(len(label_text_pairs_for_sentence))
 
-        return label_text_pairs
+        return label_text_pairs, examples_per_sentence
 
     def _get_nearest_labels_for(self, labels):
 
@@ -434,7 +437,7 @@ class TARSTagger(FewshotClassifier):
         expanded_sentences, context_offsets = self._extend_context(data_points)
 
         # make tars format
-        expanded_sentences = self._get_tars_formatted_sentences(expanded_sentences, label=label)
+        expanded_sentences, examples_per_sentence = self._get_tars_formatted_sentences(expanded_sentences, label=label)
 
         # embed extended sentence
         self.tars_model.embeddings._add_embeddings_to_sentences(expanded_sentences)
