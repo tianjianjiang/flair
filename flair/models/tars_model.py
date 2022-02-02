@@ -456,6 +456,7 @@ class TARSTagger(FewshotClassifier):
             label_offset = 0
             while True:
                 final_sentence.add_token(expanded_sentence[label_offset], force_adjuct_indices=True)
+                label_offset += 1
                 if expanded_sentence[label_offset] == self.separator:
                     break
 
