@@ -738,11 +738,14 @@ class TransformerEmbedding(Embeddings[Sentence]):
         for token in right_context:
             expanded_sentence.add_token(token)
 
-        context_length = len(left_context)
-        expanded_sentence.annotation_layers = sentence.annotation_layers
+        context_offset = len(left_context)
+
+        if bool(sentence.annotation_layers):
+            expanded_sentence.annotation_layers = sentence.annotation_layers
         if bool(sentence.multitask_annotations):
             expanded_sentence.multitask_annotations = sentence.multitask_annotations
-        return expanded_sentence, context_length
+
+        return expanded_sentence, context_offset
 
     def _add_embeddings_internal(self, sentences: List[Sentence]):
         expanded_sentences = []
