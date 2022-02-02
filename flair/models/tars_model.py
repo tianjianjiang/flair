@@ -411,8 +411,10 @@ class TARSTagger(FewshotClassifier):
         if not any([bool(x.multitask_annotations) for x in data_points]):
             pass
         else:
-            print("debug")
-            x=1
+            task_id = set([item.task_id for sublist in [x.multitask_annotations for x in data_points] for item in sublist])
+            assert len(task_id) == 1
+            task_id = task_id.pop()
+            self.switch_to_task(task_id)
 
         if not isinstance(data_points, list):
             data_points = [data_points]
