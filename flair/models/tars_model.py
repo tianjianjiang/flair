@@ -626,11 +626,13 @@ class TARSTagger(FewshotClassifier):
                     for label in all_labels:
 
                         if self.tars_model.embeddings.context_length == 0:
-                            tars_sentence = self._get_tars_formatted_sentences([sentence], label=label)
+                            tars_sentence, _ = self._get_tars_formatted_sentences([sentence], label=label)
                             skip_embedding = False
                         else:
                             tars_sentence = self._extend_context_and_embed([sentence], label=label)
                             skip_embedding = True
+
+                        tars_sentence = tars_sentence.pop()
 
                         loss_and_count = self.tars_model.predict(
                             tars_sentence,
