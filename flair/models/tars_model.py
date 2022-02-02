@@ -408,6 +408,11 @@ class TARSTagger(FewshotClassifier):
         self, data_points: Union[List[Sentence], Sentence], **kwargs
     ) -> Union[torch.Tensor, Tuple[torch.Tensor, int]]:
 
+        if not any([bool(x.multitask_annotations) for x in data_points]):
+            pass
+        else:
+            pass
+
         if not isinstance(data_points, list):
             data_points = [data_points]
 
