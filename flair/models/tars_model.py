@@ -439,6 +439,10 @@ class TARSTagger(FewshotClassifier):
         # make tars format
         expanded_sentences, examples_per_sentence = self._get_tars_formatted_sentences(expanded_sentences, label=label)
 
+        # extend contexts
+        context_offsets = [num * [offset] for offset, num in zip(context_offsets, examples_per_sentence)]
+        context_offsets = [item for sublist in context_offsets for item in sublist]
+
         # embed extended sentence
         self.tars_model.embeddings._add_embeddings_to_sentences(expanded_sentences)
 
