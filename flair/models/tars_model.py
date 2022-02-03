@@ -428,7 +428,7 @@ class TARSTagger(FewshotClassifier):
 
         if self.tars_model.embeddings.context_length == 0:
             use_context = False
-            sentences = self._get_tars_formatted_sentences(data_points)
+            sentences, examples_per_sentence = self._get_tars_formatted_sentences(data_points)
 
         else:
             use_context = True
