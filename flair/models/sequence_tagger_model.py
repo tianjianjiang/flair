@@ -430,6 +430,9 @@ class SequenceTagger(flair.nn.Classifier):
             ]
         )
 
+        all_embs.clear()
+        del all_embs
+
         # --------------------------------------------------------------------
         # FF PART
         # --------------------------------------------------------------------
@@ -471,6 +474,8 @@ class SequenceTagger(flair.nn.Classifier):
                 sentence_tensor = self.locked_dropout(sentence_tensor)
 
         features = self.linear(sentence_tensor)
+
+        del sentence_tensor
 
         return features
 

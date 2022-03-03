@@ -739,6 +739,9 @@ class FlairEmbeddings(TokenEmbeddings):
             if not self.fine_tune:
                 all_hidden_states_in_lm = all_hidden_states_in_lm.detach()
 
+            text_sentences.clear()
+            del text_sentences
+
             # take first or last hidden states from language model as word representation
             for i, sentence in enumerate(sentences):
                 sentence_text = sentence.to_tokenized_string() if self.tokenized_lm else sentence.to_plain_string()

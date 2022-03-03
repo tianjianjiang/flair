@@ -431,6 +431,7 @@ class Token(DataPoint):
 
     def clear_embeddings(self, embedding_names: List[str] = None):
         if embedding_names is None:
+            self._embeddings.clear()
             self._embeddings: Dict = {}
         else:
             for name in embedding_names:
@@ -829,6 +830,7 @@ class Sentence(DataPoint):
 
         # clear sentence embeddings
         if embedding_names is None:
+            self._embeddings.clear()
             self._embeddings: Dict = {}
         else:
             for name in embedding_names:
@@ -1123,6 +1125,7 @@ class Image(DataPoint):
 
     def clear_embeddings(self, embedding_names: List[str] = None):
         if embedding_names is None:
+            self._embeddings.clear()
             self._embeddings: Dict = {}
         else:
             for name in embedding_names:
